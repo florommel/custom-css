@@ -1,0 +1,44 @@
+#+TITLE: custom-css.el - Load custom CSS snippets
+#+AUTHOR: Florian Rommel
+#+LANGUAGE: en
+
+Style the GTK widgets (menu bar, scroll bars, tool bar, context menus)
+in your Emacs with custom CSS snippets. Works with GTK only.
+
+This is experimental and hacky.  Expect breaking changes.
+
+Currently on-demand-scroll-bar-mode can optionally use this package:
+https://github.com/florommel/on-demand-scroll-bar
+
+
+* Installation
+
+Put the location of ~custom-css.el~ in your load path and
+require it in your init file:
+#+BEGIN_SRC emacs-lisp
+(require 'custom-css)
+#+END_SRC
+
+Or use use-package:
+#+BEGIN_SRC emacs-lisp
+(use-package custom-css
+  :load-path "path/to/custom-css")
+#+END_SRC
+
+The package needs a native C module to be compiled and loaded into emacs.
+The package will try to build the module when loading.
+This needs GTK, a C compiler, make, and pkg-config to be installed.
+Currently, this has only been tested on GNU/Linux.
+
+
+* Usage
+
+Use ~custom-css-load~ to load a custom css-snippet.
+Every CSS snippet is associated with a symbol to identify it.
+Use it to unload it via ~custom-css-unload~.
+
+
+* Alternatives
+
+You can write custom CSS into ~$HOME/.config/gtk-3.0/gtk.css~.
+Use ~window#Emacs~ in all your CSS selectors to target Emacs only.
