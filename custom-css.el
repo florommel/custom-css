@@ -42,6 +42,35 @@
   "The name of the compile buffer for the `custom-css-module'."
   :type 'string)
 
+(defcustom custom-css-scroll-bar-css
+  "scrollbar.vertical {
+    border: 0;
+}
+scrollbar.vertical trough {
+    border: 0;
+    min-width: %width;
+    padding: 1px 0;
+}
+scrollbar.vertical slider {
+    border-radius: 0;
+    border: 0;
+    min-width: calc(%width - 2px);
+}"
+  "Custom scroll-bar CSS.
+Enable `custom-css-scroll-bar-mode' to enable CSS styling.  The string
+\"%width\" is replaced with the value of `custom-css-scroll-bar-width' + \"px\".
+Changes to this variable will not take effect until `custom-css-scroll-bar-mode'
+is (re-)enabled.
+Note that you can also change the color of your scroll bars by customizing
+the `scroll-bar' face."
+  :type 'string)
+
+(defcustom custom-css-scroll-bar-width 6
+  "Width of the scroll-bar when `custom-css-scroll-bar-mode' is enabled.
+Internally the mode sets the default value of `scroll-bar-width'.
+So if you have buffer-local customizations of this variable, it won't work."
+  :type 'integer)
+
 (defvar custom-css-available nil
   "Determines if the module could be built and `custom-css' can be used.")
 
@@ -89,6 +118,74 @@ the initialization was successful.  Argument FRAME is not used."
     (unless (custom-css-try-init)
       (add-hook 'after-make-frame-functions
                 #'custom-css--after-make-frame-function))))
+
+(defun custom-css--after-make-frame (frame)
+  "Set the correct `scroll-bar-width' for the frame.
+FRAME is the new frame."
+  (set-frame-parameter frame 'scroll-bar-width custom-css-scroll-bar-width))
+
+(defun custom-css--scroll-bar-load ()
+  "Customize the scroll-bar visuals with CSS."
+  (if custom-css-available
+      (let ((expanded-css
+             (replace-regexp-in-string
+              "%width"
+              (format "%spx" custom-css-scroll-bar-width)
+              custom-css-scroll-bar-css nil 'literal)))
+        (setq-default scroll-bar-width custom-css-scroll-bar-width)
+        (add-hook 'after-make-frame-functions #'custom-css--after-make-frame)
+        ;; Adapt all existing scroll bars
+        (dolist (frame (frame-list))
+          (set-frame-parameter frame 'scroll-bar-width
+                               custom-css-scroll-bar-width)
+          (dolist (window (window-list frame))
+            (set-window-scroll-bars window scroll-bar-width
+                                    (or previous-scroll-bar-mode
+	        		        default-frame-scroll-bars))))
+        ;; Reenable scroll-bar modes
+        (when scroll-bar-mode
+          (scroll-bar-mode 1))
+        (when (and (boundp 'on-demand-scroll-bar-mode)
+                   on-demand-scroll-bar-mode)
+          (on-demand-scroll-bar-mode 1))
+        (custom-css-load 'custom-css-scroll-bar expanded-css))
+    (warn (concat "`custom-css': Library not working."))))
+
+(defun custom-css--scroll-bar-unload ()
+  "Clean up scroll-bar CSS snippet."
+  (when custom-css-available
+    (setq-default scroll-bar-width nil)
+    (remove-hook 'after-make-frame-functions #'custom-css--after-make-frame)
+    ;; Reset all existing scroll bars
+    (dolist (frame (frame-list))
+      (set-frame-parameter frame 'scroll-bar-width nil)
+      (dolist (window (window-list frame))
+        (set-window-scroll-bars window nil
+                                (or previous-scroll-bar-mode
+	        		    default-frame-scroll-bars))))
+    ;; Reenable scroll-bar modes
+    (when scroll-bar-mode
+          (scroll-bar-mode 1))
+    (when (and (boundp 'on-demand-scroll-bar-mode)
+               on-demand-scroll-bar-mode)
+      (on-demand-scroll-bar-mode 1))
+    (custom-css-unload 'custom-css-scroll-bar)))
+
+;;;###autoload
+(define-minor-mode custom-css-scroll-bar-mode
+  "Interactively with no argument, this command toggles the mode.
+A positive prefix argument enables the mode, any other prefix
+argument disables it.  From Lisp, argument omitted or nil enables
+the mode, `toggle' toggles the state.
+
+When `custom-css-scroll-bar-mode' is enabled, the scroll-bar is
+customized with CSS according to `custom-css-scroll-bar-css'."
+  :init-value nil
+  :group 'custom-css
+  :global t
+  (if custom-css-scroll-bar-mode
+      (custom-css--scroll-bar-load)
+    (custom-css--scroll-bar-unload)))
 
 (provide 'custom-css)
 

@@ -3,19 +3,17 @@
 #+LANGUAGE: en
 
 Style the GTK widgets (menu bar, scroll bars, tool bar, context menus)
-in your Emacs with custom CSS snippets. Works with GTK only.
+in your Emacs with custom CSS snippets.  Works with GTK only.
 
 This is experimental and hacky.  Expect breaking changes.
-
-Currently on-demand-scroll-bar-mode can optionally use this package:
-https://github.com/florommel/on-demand-scroll-bar
 
 
 * Installation
 
-Put the location of ~custom-css.el~ in your load path and
-require it in your init file:
+Clone the repository and put the path in your load path.
+Then, require ~custom-css~ in your init file:
 #+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "/path/to/custom-css")
 (require 'custom-css)
 #+END_SRC
 
@@ -25,17 +23,36 @@ Or use use-package:
   :load-path "path/to/custom-css")
 #+END_SRC
 
-The package needs a native C module to be compiled and loaded into emacs.
-The package will try to build the module when loading.
+The package needs a native C module to be compiled and loaded into
+Emacs.  The package will try to build the module when loading.
 This needs GTK, a C compiler, make, and pkg-config to be installed.
 Currently, this has only been tested on GNU/Linux.
 
 
 * Usage
 
-Use ~custom-css-load~ to load a custom css-snippet.
+Use ~custom-css-load~ to load a custom CSS snippet.
 Every CSS snippet is associated with a symbol to identify it.
 Use it to unload it via ~custom-css-unload~.
+
+You can inspect Emacs's GTK widgets and experiment with CSS via:
+~M-x~ and ~(x-gtk-debug)~
+
+
+** Customizing the Scroll-Bar Appearance
+
+Customizing the scroll bar is a bit tricky because the width is not
+only determined by CSS.  The minor mode ~custom-css-scroll-bar-mode~
+simplifies modifying the scroll-bar appearance.
+
+Customize ~on-demand-scroll-bar-custom-css~ and
+~on-demand-scroll-bar-custom-css-width~.
+
+[[./img/img1.png]]
+
+Optionally, use ~on-demand-scroll-bar-mode~ to show the scroll bar only
+when needed:
+https://github.com/florommel/on-demand-scroll-bar
 
 
 * Alternatives
