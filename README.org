@@ -1,4 +1,4 @@
-#+TITLE: custom-css.el - Load custom CSS snippets
+#+TITLE: custom-css.el - Style Emacs's GTK widgets with custom CSS
 #+AUTHOR: Florian Rommel
 #+LANGUAGE: en
 
