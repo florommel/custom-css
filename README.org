@@ -45,8 +45,7 @@ Customizing the scroll bar is a bit tricky because the width is not
 only determined by CSS.  The minor mode ~custom-css-scroll-bar-mode~
 simplifies modifying the scroll-bar appearance.
 
-Customize ~on-demand-scroll-bar-custom-css~ and
-~on-demand-scroll-bar-custom-css-width~.
+Customize ~custom-css-scroll-bar-css~ and ~custom-css-scroll-bar-width~.
 
 [[./img/img1.png]]
 
